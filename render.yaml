@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: pharmacare-backend
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    region: singapore
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SERVER_PORT
+        value: 8080
+      - key: DB_URL
+        value: jdbc:postgresql://db.pndqykfwbuqlprdifpcr.supabase.co:5432/postgres?sslmode=require
+      - key: DB_USERNAME
+        value: postgres.pndqykfwbuqlprdifpcr
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://pharmacare-frontend.vercel.app,http://localhost:3000
+    healthCheckPath: /actuator/health

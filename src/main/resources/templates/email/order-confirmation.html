@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 600px; background: #ffffff; margin: 0 auto; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .header { background: #059669; color: #ffffff; padding: 30px; text-align: center; }
+        .content { padding: 30px; line-height: 1.6; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+        th { background: #f8fafc; }
+        .footer { background: #f8fafc; padding: 20px; text-align: center; font-size: 12px; color: #64748b; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Order Confirmed!</h1>
+    </div>
+    <div class="content">
+        <h2>Thank you for your order, <span th:text="${customerName}">Customer</span>!</h2>
+        <p>Order Reference: <strong th:text="${orderNumber}">ORD-123456</strong></p>
+        <p>Order Total: <strong th:text="${totalAmount}">$150.00</strong></p>
+        <p>Shipping Address: <span th:text="${shippingAddress}">123 Main St, Dhaka</span></p>
+
+        <h3>Order Summary</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Price</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${orderItems}">
+                <td th:text="${item.productName}">Product Name</td>
+                <td th:text="${item.quantity}">1</td>
+                <td th:text="${item.price}">$50.00</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="footer">
+        <p>&copy; 2026 E-Commerce Store. Thank you for shopping with us!</p>
+    </div>
+</div>
+</body>
+</html>
