@@ -11,7 +11,7 @@ spring:
       pool-name: ecommerce-hikari-prod
   data:
     redis:
-      host: ${REDIS_HOST}
+      host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       timeout: 3s
@@ -26,7 +26,7 @@ spring:
     show-sql: false
 
   mail:
-    host: ${MAIL_HOST}
+    host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
     username: ${MAIL_USERNAME:}
     password: ${MAIL_PASSWORD:}
@@ -39,7 +39,7 @@ spring:
 
 app:
   verification:
-    require-verified-login: ${REQUIRE_VERIFIED_LOGIN:true}
+    require-verified-login: ${REQUIRE_VERIFIED_LOGIN:false}
   mail:
     enabled: ${MAIL_ENABLED:false}
 
