@@ -20,8 +20,12 @@ spring:
         jdbc:
           time_zone: UTC
   cache:
-    type: redis
-    cache-names: products
+    type: ${CACHE_TYPE:simple}
+    cache-names: products,product-details,categories,category-tree,brands,active-brands,search-autocomplete,search-trending,dashboard-summary
+  data:
+    redis:
+      repositories:
+        enabled: false
 
 server:
   port: ${SERVER_PORT:8080}

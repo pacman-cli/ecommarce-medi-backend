@@ -9,8 +9,13 @@ spring:
       minimum-idle: ${DB_POOL_MIN_IDLE:2}
       connection-timeout: 30000
       pool-name: ecommerce-hikari-prod
+  cache:
+    type: ${CACHE_TYPE:simple}
+    cache-names: products,product-details,categories,category-tree,brands,active-brands,search-autocomplete,search-trending,dashboard-summary
   data:
     redis:
+      repositories:
+        enabled: false
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
