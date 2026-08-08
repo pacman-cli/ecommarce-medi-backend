@@ -39,7 +39,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
+import java.security.SecureRandom;
 
 /**
  * Service implementation managing multi-gateway online payments (SSLCommerz, bKash, Nagad, COD),
@@ -56,7 +56,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentValidator paymentValidator;
     private final Map<PaymentMethod, PaymentGatewayStrategy> gatewayStrategies;
 
-    private static final Random RANDOM = new Random();
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     public PaymentServiceImpl(PaymentRepository paymentRepository,
                               OrderRepository orderRepository,
@@ -92,7 +92,7 @@ public class PaymentServiceImpl implements PaymentService {
             payment.setPaymentMethod(request.getPaymentMethod());
         } else {
             String datePrefix = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-            String suffix = String.format("%05d", RANDOM.nextInt(100000));
+            String suffix = String.format("%05d", SECURE_RANDOM.nextInt(100000));
             String txnId = "TXN-" + datePrefix + "-" + suffix;
 
             payment = Payment.builder()

@@ -1,0 +1,4 @@
+## 2024-08-07 - [CRITICAL] Predictable Identifier Generation
+**Vulnerability:** Found `java.util.Random` being used to generate Order Numbers, Invoice Numbers, and Transaction IDs in `OrderServiceImpl` and `PaymentServiceImpl`.
+**Learning:** `java.util.Random` is a predictably seeded pseudo-random number generator. In contexts where identifiers must be unguessable (like transaction IDs or order IDs that might be exposed via URLs), using a predictable PRNG can lead to Insecure Direct Object References (IDOR) and information disclosure, allowing attackers to iterate through or predict identifiers.
+**Prevention:** Always use a cryptographically strong pseudo-random number generator (CSPRNG) like `java.security.SecureRandom` when generating sensitive, unique, or unpredictable identifiers and tokens.
