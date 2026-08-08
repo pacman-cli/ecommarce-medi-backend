@@ -43,7 +43,7 @@ import org.springframework.util.StringUtils;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Random;
+import java.security.SecureRandom;
 
 /**
  * Service implementation handling checkout order creation, inventory deduction, coupon recording,
@@ -63,7 +63,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final OrderValidator orderValidator;
 
-    private static final Random RANDOM = new Random();
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     @Override
     @Transactional
@@ -79,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
                 : orderMapper.toAddressEntity(request.getBillingAddress());
 
         String datePrefix = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String suffix = String.format("%05d", RANDOM.nextInt(100000));
+        String suffix = String.format("%05d", SECURE_RANDOM.nextInt(100000));
         String orderNumber = "ORD-" + datePrefix + "-" + suffix;
         String invoiceNumber = "INV-" + datePrefix + "-" + suffix;
 
