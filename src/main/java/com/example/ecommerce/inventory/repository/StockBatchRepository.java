@@ -40,4 +40,10 @@ public interface StockBatchRepository extends JpaRepository<StockBatch, Long>, J
 
     @Query("SELECT COALESCE(SUM(b.availableQuantity), 0) FROM StockBatch b WHERE b.product.id = :productId AND b.deleted = false AND b.status <> 'EXPIRED'")
     Integer sumAvailableQuantityByProductId(@Param("productId") Long productId);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("UPDATE StockBatch b SET b.status = com.example.ecommerce.inventory.entity.BatchStatus.EXPIRED "
+           + "WHERE b.deleted = false AND b.status <> com.example.ecommerce.inventory.entity.BatchStatus.EXPIRED "
+           + "AND b.expiryDate IS NOT NULL AND b.expiryDate < :date")
+    int markExpiredBatches(@Param("date") LocalDate date);
 }
