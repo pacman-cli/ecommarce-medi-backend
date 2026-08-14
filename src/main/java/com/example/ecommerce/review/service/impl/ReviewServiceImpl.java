@@ -1,7 +1,6 @@
 package com.example.ecommerce.review.service.impl;
 
 import com.example.ecommerce.common.dto.response.PageResponse;
-import com.example.ecommerce.exception.BadRequestException;
 import com.example.ecommerce.exception.ResourceNotFoundException;
 import com.example.ecommerce.exception.UnauthorizedException;
 import com.example.ecommerce.order.entity.OrderStatus;
