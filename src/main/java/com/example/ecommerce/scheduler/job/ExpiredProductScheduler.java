@@ -26,18 +26,9 @@ public class ExpiredProductScheduler {
     public void runExpiredProductCheck() {
         log.info("[CRON JOB] Starting expired inventory stock batch check...");
         LocalDate today = LocalDate.now();
-        int count = 0;
 
-        for (StockBatch batch : stockBatchRepository.findAll()) {
-            if (!batch.isDeleted() && batch.getStatus() != BatchStatus.EXPIRED && batch.getExpiryDate() != null && batch.getExpiryDate().isBefore(today)) {
-                batch.setStatus(BatchStatus.EXPIRED);
-                stockBatchRepository.save(batch);
-                count++;
-                log.warn("[BATCH EXPIRED ALERT] Stock batch LOT #: {} ID: {} for product ID: {} expired on {}",
-                        batch.getBatchNumber(), batch.getId(), batch.getProduct().getId(), batch.getExpiryDate());
-            }
-        }
+        int updatedCount = stockBatchRepository.markExpiredBatches(today);
 
-        log.info("[CRON JOB] Expired stock batch check completed. Total batches marked EXPIRED: {}", count);
+        log.info("[CRON JOB] Expired stock batch check completed. Total batches marked EXPIRED: {}", updatedCount);
     }
 }
