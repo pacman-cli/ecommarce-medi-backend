@@ -24,4 +24,6 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     Page<Order> findByUserIdAndDeletedFalse(Long userId, Pageable pageable);
 
     Optional<Order> findByIdAndUserIdAndDeletedFalse(Long id, Long userId);
+
+    boolean existsByUserIdAndItemsProductIdAndStatus(Long userId, Long productId, com.example.ecommerce.order.entity.OrderStatus status);
 }

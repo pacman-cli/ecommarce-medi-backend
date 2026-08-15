@@ -24,6 +24,7 @@ import com.example.ecommerce.review.specification.ReviewSpecification;
 import com.example.ecommerce.review.validator.ReviewValidator;
 import com.example.ecommerce.user.entity.User;
 import com.example.ecommerce.user.repository.UserRepository;
+import com.example.ecommerce.order.entity.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -216,12 +217,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     private boolean checkVerifiedPurchase(Long userId, Long productId) {
         try {
-            return orderRepository.findAll().stream()
-                    .anyMatch(o -> o.getUser() != null
-                            && o.getUser().getId().equals(userId)
-                            && o.getStatus() == OrderStatus.DELIVERED
-                            && o.getItems() != null
-                            && o.getItems().stream().anyMatch(i -> i.getProduct() != null && i.getProduct().getId().equals(productId)));
+            return orderRepository.existsByUserIdAndItemsProductIdAndStatus(userId, productId, OrderStatus.DELIVERED);
         } catch (Exception e) {
             log.warn("Error checking verified purchase for user {} product {}: {}", userId, productId, e.getMessage());
             return false;
