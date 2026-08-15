@@ -1,0 +1,108 @@
+name: ci
+
+# Quality gate: tests + container scan on every push/PR.
+# Deploy is a separate workflow gated behind a manual environment approval.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE: ghcr.io/${{ github.repository }}
+  JAVA_VERSION: "17"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Quality gate: compile + run the full test suite.
+  # ---------------------------------------------------------------------------
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+      - name: Cache Maven repo
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+      - name: Run tests
+        run: mvn -B -ntp clean test
+
+  # ---------------------------------------------------------------------------
+  # Build -> scan -> (only push on main).
+  # The image is built+loaded, scanned (fs + container), and only pushed to GHCR
+  # once the scan passes. CVEs in the dependency tree are flagged in the repo SARIF.
+  # ---------------------------------------------------------------------------
+  build-scan-gate:
+    name: Build, scan, gate
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # Fixed local tag for scanning — avoids branch-name characters that are
+      # invalid in Docker tags (e.g. '/' in feature-branch names).
+      - name: Build image (local load, scan tag)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          load: true
+          tags: ${{ format('{0}:ci-scan', env.IMAGE) }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      # Scan the built container image; fail on CRITICAL/HIGH (unfixable ignored).
+      - name: Trivy image scan (gate)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ format('{0}:ci-scan', env.IMAGE) }}
+          exit-code: "1"
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+      # Scan the source tree -> upload SARIF to the security tab.
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          format: sarif
+          output: trivy-results.sarif
+      - name: Upload scan results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+      # Push a pinned SHA tag only when all prior steps passed on main.
+      # (Deploys reference this immutable tag — never `latest` in production.)
+      - if: github.ref_name == 'main'
+        name: Push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ${{ format('{0}:sha-{1}', env.IMAGE, github.sha) }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

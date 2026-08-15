@@ -35,6 +35,9 @@ class EmailServiceImplTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(emailService, "fromEmail", "noreply@example.com");
+        // mailSender is now an optional field (no Redis/mail required to boot);
+        // inject the mock explicitly since @InjectMocks only used the constructor.
+        ReflectionTestUtils.setField(emailService, "mailSender", mailSender);
     }
 
     @Test

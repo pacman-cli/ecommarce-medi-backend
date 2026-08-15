@@ -2,8 +2,8 @@ package com.example.ecommerce.common.email;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -17,13 +17,17 @@ import org.springframework.stereotype.Service;
  * the code is only logged, never sent.</p>
  */
 @Service("verificationEmailService")
-@RequiredArgsConstructor
 @Slf4j
 public class EmailServiceImpl implements EmailService {
 
     private static final String HEADER_LOGO = "E-Commerce";
 
-    private final JavaMailSender mailSender;
+    /**
+     * Optional so the application still starts when no {@code spring.mail.host} is
+     * configured (mail is disabled by default; see {@code app.mail.enabled}).
+     */
+    @Autowired(required = false)
+    private JavaMailSender mailSender;
 
     @Value("${app.mail.enabled:false}")
     private boolean enabled;
@@ -38,6 +42,10 @@ public class EmailServiceImpl implements EmailService {
     public void sendVerificationCode(String to, String code, VerificationPurpose purpose) {
         if (!enabled) {
             log.info("[MAIL DISABLED] {} code for {}: {}", purpose, to, code);
+            return;
+        }
+        if (mailSender == null) {
+            log.error("[MAIL UNAVAILABLE] No JavaMailSender bean — cannot send {} email to {}", purpose, to);
             return;
         }
         try {

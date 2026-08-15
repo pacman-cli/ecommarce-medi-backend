@@ -43,6 +43,10 @@ public class UserPrincipal implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        // Granular permissions modelled on the Role -> Permission mapping so that
+        // @PreAuthorize("hasAuthority('PROFILE_READ')") etc. actually resolve.
+        user.getRole().getPermissions()
+                .forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission.name())));
         return authorities;
     }
 

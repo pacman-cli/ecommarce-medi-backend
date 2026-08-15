@@ -6,8 +6,8 @@ import com.example.ecommerce.email.dto.request.SendPasswordResetEmailRequest;
 import com.example.ecommerce.email.dto.request.SendWelcomeEmailRequest;
 import com.example.ecommerce.email.service.EmailService;
 import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -23,11 +23,20 @@ import java.nio.charset.StandardCharsets;
  */
 @Slf4j
 @Service("appEmailService")
-@RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
-    private final JavaMailSender mailSender;
+    /**
+     * Optional so the application still starts when no {@code spring.mail.host} is
+     * configured (mail is disabled by default in dev/prod unless MAIL_ENABLED=true).
+     */
+    @Autowired(required = false)
+    private JavaMailSender mailSender;
+
     private final SpringTemplateEngine templateEngine;
+
+    public EmailServiceImpl(SpringTemplateEngine templateEngine) {
+        this.templateEngine = templateEngine;
+    }
 
     @Value("${spring.mail.username:noreply@example.com}")
     private String fromEmail;
@@ -91,6 +100,10 @@ public class EmailServiceImpl implements EmailService {
     }
 
     private void sendHtmlEmail(String to, String subject, String htmlContent) {
+        if (mailSender == null) {
+            log.warn("[MAIL UNAVAILABLE] No JavaMailSender bean — email to {} ('{}') skipped", to, subject);
+            return;
+        }
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());

@@ -51,6 +51,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles domain exceptions derived from {@link ApiException} (e.g. {@link EmailNotVerifiedException}),
+     * mapping their embedded {@link HttpStatus} to a standard error response instead of a 500.
+     */
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ErrorResponse> handleApiException(ApiException ex, HttpServletRequest request) {
+        HttpStatus status = ex.getStatus() != null ? ex.getStatus() : HttpStatus.BAD_REQUEST;
+        log.warn("API exception [{}] on URI {}: {}", status.value(), request.getRequestURI(), ex.getMessage());
+        ErrorCode code = switch (status) {
+            case UNAUTHORIZED -> ErrorCode.UNAUTHORIZED;
+            case FORBIDDEN -> ErrorCode.FORBIDDEN;
+            case NOT_FOUND -> ErrorCode.RESOURCE_NOT_FOUND;
+            case CONFLICT -> ErrorCode.DUPLICATE_RESOURCE;
+            case UNPROCESSABLE_ENTITY -> ErrorCode.BUSINESS_RULE_VIOLATION;
+            default -> ErrorCode.BAD_REQUEST;
+        };
+        return buildResponse(status, code, ex.getMessage(), request, null);
+    }
+
+    /**
      * Handles Spring Security authorization access denials (403 Forbidden).
      */
     @ExceptionHandler(AccessDeniedException.class)

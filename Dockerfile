@@ -7,11 +7,11 @@
 FROM maven:3.9-eclipse-temurin-17 AS builder
 WORKDIR /app
 
-# Dependency layer caching optimization
+ENV MAVEN_OPTS="-Xmx384m -XX:MaxMetaspaceSize=256m -Dfile.encoding=UTF-8"
+
 COPY pom.xml .
 RUN mvn -B dependency:go-offline -DskipTests
 
-# Source code build
 COPY src ./src
 RUN mvn -B clean package -DskipTests
 
@@ -20,35 +20,26 @@ RUN mvn -B clean package -DskipTests
 # ==============================================================================
 FROM eclipse-temurin:17-jre-alpine AS runner
 
-# Install wget/curl for container health checks
 RUN apk add --no-cache wget curl tzdata
 
-# Set timezone
 ENV TZ=UTC
 
-# Create non-root application user and group for security
 RUN addgroup -S ecommerce -g 10001 && \
     adduser -S ecommerce -G ecommerce -u 10001
 
 WORKDIR /app
 
-# Copy compiled JAR artifact from builder stage
 COPY --from=builder /app/target/ecommerce-backend-*.jar app.jar
 
-# Ensure appropriate ownership
 RUN chown -R ecommerce:ecommerce /app
 
-# Switch to non-root user
 USER ecommerce
 
-# Expose Spring Boot HTTP port
 EXPOSE 8080
 
-# Health check instructions
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+  CMD wget --quiet --tries=1 --spider http://localhost:${SERVER_PORT:-8080}/actuator/health || exit 1
 
-# Production JVM flags for memory management and performance
 ENTRYPOINT ["java", \
   "-XX:+UseG1GC", \
   "-XX:MaxRAMPercentage=75.0", \

@@ -37,13 +37,26 @@ public class CorsConfig implements WebMvcConfigurer {
      */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins(corsProperties.getAllowedOrigins().toArray(String[]::new))
-                .allowedMethods(ALLOWED_METHODS.toArray(String[]::new))
-                .allowedHeaders("*")
-                .exposedHeaders("X-Trace-Id")
-                .allowCredentials(true)
-                .maxAge(3600);
+        List<String> origins = corsProperties.getAllowedOrigins();
+        boolean hasWildcard = origins.stream().anyMatch(o -> o.contains("*"));
+
+        if (hasWildcard) {
+            registry.addMapping("/**")
+                    .allowedOriginPatterns(origins.toArray(String[]::new))
+                    .allowedMethods(ALLOWED_METHODS.toArray(String[]::new))
+                    .allowedHeaders("*")
+                    .exposedHeaders("X-Trace-Id")
+                    .allowCredentials(true)
+                    .maxAge(3600);
+        } else {
+            registry.addMapping("/**")
+                    .allowedOrigins(origins.toArray(String[]::new))
+                    .allowedMethods(ALLOWED_METHODS.toArray(String[]::new))
+                    .allowedHeaders("*")
+                    .exposedHeaders("X-Trace-Id")
+                    .allowCredentials(true)
+                    .maxAge(3600);
+        }
     }
 
     /**
@@ -54,7 +67,15 @@ public class CorsConfig implements WebMvcConfigurer {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(corsProperties.getAllowedOrigins());
+        List<String> origins = corsProperties.getAllowedOrigins();
+        boolean hasWildcard = origins.stream().anyMatch(o -> o.contains("*"));
+
+        if (hasWildcard) {
+            configuration.setAllowedOriginPatterns(origins);
+        } else {
+            configuration.setAllowedOrigins(origins);
+        }
+
         configuration.setAllowedMethods(ALLOWED_METHODS);
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("X-Trace-Id"));

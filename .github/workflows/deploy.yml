@@ -1,0 +1,70 @@
+name: deploy
+
+# Deploys to production ONLY after the CI workflow has completed successfully
+# on `main`, and a human approves the production environment in the GitHub UI.
+#
+# The actual release is built by Render from this repository (render.yaml,
+# env: docker). This workflow triggers Render to deploy via its Deploy Hook
+# so deployments are explicit, logged, and gated.
+
+on:
+  workflow_run:
+    workflows: ["ci"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: Reason for this deploy (audit trail)
+        required: false
+        default: "Manual deploy"
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-production:
+    name: Deploy to production
+    runs-on: ubuntu-latest
+    environment: production   # enable "Wait for manual approval" on this env
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Trigger Render deploy
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          REASON: ${{ inputs.reason || 'Auto deploy after CI' }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "::error::RENDER_DEPLOY_HOOK_URL secret not set — add your Render Deploy Hook URL."
+            exit 1
+          fi
+          echo "Deploy trigger: $REASON"
+          curl -f -L -X POST "$RENDER_DEPLOY_HOOK_URL"
+      - name: Smoke-check production health
+        env:
+          RENDER_HEALTH_URL: ${{ vars.RENDER_HEALTH_URL || 'https://pharmacare-backend.onrender.com' }}
+        run: |
+          # Give Render time to start the new release, then verify readiness.
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' \
+              -H 'Accept: application/json' \
+              "${RENDER_HEALTH_URL}/actuator/health" || true)
+            echo "health probe attempt $i -> HTTP $code"
+            if [ "$code" = "200" ]; then
+              body=$(curl -s "${RENDER_HEALTH_URL}/actuator/health")
+              echo "health body: $body"
+              if echo "$body" | grep -q '"status":"UP"'; then
+                echo "Deployment verified: UP."
+                exit 0
+              fi
+            fi
+            sleep 10
+          done
+          echo "::error::Production health check did not reach UP after ~300s."
+          exit 1
+
+      # If the health probe above fails, the deploy is already out. Notify + how to roll back.
+      - name: No rollback extensions needed here — Render Rollback is the fallback
+        run: |
+          echo "If bad: Render dashboard -> Deploys -> choose previous successful deploy -> Rollback."

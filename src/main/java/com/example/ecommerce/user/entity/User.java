@@ -72,4 +72,8 @@ public class User extends BaseEntity {
 
     @Column(name = "password_changed_at")
     private Instant passwordChangedAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Address> addresses = new ArrayList<>();
 }

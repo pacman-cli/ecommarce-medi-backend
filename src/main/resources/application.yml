@@ -10,10 +10,24 @@ spring:
     time-zone: UTC
     serialization:
       write-dates-as-timestamps: false
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:${DB_URL:${DATABASE_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:ecommerce}?sslmode=${DB_SSL_MODE:disable}}}}
+    username: ${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:${DATABASE_USERNAME:postgres}}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:${DATABASE_PASSWORD:postgres}}}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
+      connection-timeout: 30000
+      idle-timeout: 300000
+      max-lifetime: 540000
+      keepalive-time: 30000
+      validation-timeout: 5000
+      pool-name: ecommerce-hikari
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:validate}
+      ddl-auto: ${JPA_DDL_AUTO:update}
     properties:
       hibernate:
         format_sql: true
@@ -28,7 +42,7 @@ spring:
         enabled: false
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT:${PORT:8080}}
   shutdown: graceful
   error:
     include-message: never
@@ -55,6 +69,11 @@ management:
   endpoint:
     health:
       show-details: when_authorized
+  health:
+    redis:
+      enabled: false
+    mail:
+      enabled: false
 
 app:
   jwt:
@@ -66,6 +85,7 @@ app:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
   redis:
     key-prefix: ${REDIS_KEY_PREFIX:ecommerce}
+    enabled: ${REDIS_ENABLED:false}
   verification:
     otp-length: ${OTP_LENGTH:6}
     otp-ttl-minutes: ${OTP_TTL_MINUTES:10}
