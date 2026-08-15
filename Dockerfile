@@ -18,7 +18,7 @@ RUN mvn -B clean package -DskipTests
 # ==============================================================================
 # Stage 2: Minimal runtime image with Eclipse Temurin JRE 17 Alpine
 # ==============================================================================
-FROM eclipse-temurin:17-jre-alpine AS runner
+FROM eclipse-temurin:25-jre-alpine AS runner
 
 RUN apk add --no-cache wget curl tzdata
 
