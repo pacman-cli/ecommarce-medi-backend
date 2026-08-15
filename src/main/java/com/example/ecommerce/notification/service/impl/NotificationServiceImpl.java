@@ -40,7 +40,6 @@ import org.springframework.util.StringUtils;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Service implementation handling multi-channel notification dispatching (Email, SMS, Push, In-App),
