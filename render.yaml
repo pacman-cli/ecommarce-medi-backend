@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: pharmacare-backend
+    name: ecommare-medi-backend
     env: docker
     dockerfilePath: Dockerfile
     plan: free
@@ -9,19 +9,19 @@ services:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
       - key: SERVER_PORT
-        value: 8080
+        value: "8080"
       - key: DB_URL
-        sync: false
+        value: jdbc:postgresql://dpg-da2a3ougekts73c5lm10-a:5432/ecommerce_db_qgb9
       - key: DB_USERNAME
-        sync: false
+        value: ecommerce_db_qgb9_user
       - key: DB_PASSWORD
-        sync: false
+        value: 7g1XT8fjX3SjaG63ShdHugwx99IZhj5U
       - key: JPA_DDL_AUTO
         value: update
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ALLOWED_ORIGINS
-        value: https://ecommare-medi-frontend.vercel.app,http://localhost:3000
+        value: "https://ecommare-medi-frontend.vercel.app,http://localhost:3000"
       - key: REDIS_ENABLED
         value: "false"
       - key: STORAGE_BASE_URL
