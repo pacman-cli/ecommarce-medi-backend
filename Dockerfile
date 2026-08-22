@@ -4,7 +4,7 @@
 # ==============================================================================
 # Stage 1: Build stage with Maven and Eclipse Temurin JDK 17
 # ==============================================================================
-FROM maven:3.9-eclipse-temurin-17 AS builder
+FROM maven:3-eclipse-temurin-24 AS builder
 WORKDIR /app
 
 ENV MAVEN_OPTS="-Xmx384m -XX:MaxMetaspaceSize=256m -Dfile.encoding=UTF-8"
