@@ -21,7 +21,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ALLOWED_ORIGINS
-        value: "https://ecommare-medi-frontend.vercel.app,http://localhost:3000"
+        value: "https://pharma-care.puspo.online,https://ecommare-medi-frontend.vercel.app,http://localhost:3000"
       - key: REDIS_ENABLED
         value: "false"
       - key: STORAGE_BASE_URL
