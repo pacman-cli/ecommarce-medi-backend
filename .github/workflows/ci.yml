@@ -63,7 +63,7 @@ jobs:
       # Fixed local tag for scanning — avoids branch-name characters that are
       # invalid in Docker tags (e.g. '/' in feature-branch names).
       - name: Build image (local load, scan tag)
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: Dockerfile
@@ -98,7 +98,7 @@ jobs:
       # (Deploys reference this immutable tag — never `latest` in production.)
       - if: github.ref_name == 'main'
         name: Push image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: Dockerfile
