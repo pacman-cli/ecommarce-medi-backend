@@ -16,7 +16,7 @@ RUN mvn -B clean package -DskipTests && mv target/ecommerce-backend-*.jar target
 # ==============================================================================
 # Stage 2: Minimal runtime image with Eclipse Temurin JRE 17 Alpine
 # ==============================================================================
-FROM eclipse-temurin:17-jre-slim AS runner
+FROM eclipse-temurin:17-jre AS runner
 
 RUN apt-get update && apt-get install -y --no-install-recommends wget curl tzdata && rm -rf /var/lib/apt/lists/*
 
