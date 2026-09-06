@@ -10,7 +10,7 @@ WORKDIR /app
 ENV MAVEN_OPTS="-Xmx384m -XX:MaxMetaspaceSize=256m -Dfile.encoding=UTF-8"
 
 COPY pom.xml .
-RUN mvn -B dependency:go-offline -DskipTests
+RUN mvn -B dependency:go-offline -DskipTests || true
 
 COPY src ./src
 RUN mvn -B clean package -DskipTests
