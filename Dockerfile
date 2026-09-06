@@ -11,7 +11,7 @@ ENV MAVEN_OPTS="-Xmx384m -XX:MaxMetaspaceSize=256m -Dfile.encoding=UTF-8"
 
 COPY pom.xml .
 COPY src ./src
-RUN mvn -B clean package -DskipTests
+RUN mvn -B clean package -DskipTests && mv target/ecommerce-backend-*.jar target/app.jar
 
 # ==============================================================================
 # Stage 2: Minimal runtime image with Eclipse Temurin JRE 17 Alpine
@@ -27,7 +27,7 @@ RUN groupadd -r ecommerce -g 10001 && \
 
 WORKDIR /app
 
-COPY --from=builder /app/target/ecommerce-backend-*.jar app.jar
+COPY --from=builder /app/target/app.jar app.jar
 
 RUN chown -R ecommerce:ecommerce /app
 
