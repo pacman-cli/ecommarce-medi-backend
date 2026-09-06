@@ -4,7 +4,7 @@
 # ==============================================================================
 # Stage 1: Build stage with Maven and Eclipse Temurin JDK 17
 # ==============================================================================
-FROM maven:3-eclipse-temurin-24 AS builder
+FROM maven:3.9-eclipse-temurin-17-alpine AS builder
 WORKDIR /app
 
 ENV MAVEN_OPTS="-Xmx384m -XX:MaxMetaspaceSize=256m -Dfile.encoding=UTF-8"
@@ -18,7 +18,7 @@ RUN mvn -B clean package -DskipTests
 # ==============================================================================
 # Stage 2: Minimal runtime image with Eclipse Temurin JRE 17 Alpine
 # ==============================================================================
-FROM eclipse-temurin:24-jre-alpine AS runner
+FROM eclipse-temurin:17-jre-alpine AS runner
 
 RUN apk add --no-cache wget curl tzdata
 
