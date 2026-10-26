@@ -108,7 +108,7 @@ public class CategoryServiceImpl implements CategoryService {
                         .orElseThrow(() -> new ResourceNotFoundException("Parent category not found with ID: " + request.getParentId()));
                 category.setParent(parent);
             }
-        } else if (request.getParentId() == null && request.getSortOrder() != null) {
+        } else if (request.getSortOrder() != null) {
             // Null parentId means convert to root category if parent was set before
             category.setParent(null);
         }

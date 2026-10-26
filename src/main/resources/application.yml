@@ -77,12 +77,12 @@ management:
 
 app:
   jwt:
-    secret: ${JWT_SECRET:change-me-please-change-me-please-secure-jwt-secret-0123456789}
+    secret: ${JWT_SECRET}
     access-token-expiration-ms: ${JWT_ACCESS_EXPIRATION_MS:900000}
     refresh-token-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}
     issuer: ecommerce-api
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
   redis:
     key-prefix: ${REDIS_KEY_PREFIX:ecommerce}
     enabled: ${REDIS_ENABLED:false}
