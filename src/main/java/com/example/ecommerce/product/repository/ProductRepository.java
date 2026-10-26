@@ -4,6 +4,7 @@ import com.example.ecommerce.product.entity.Product;
 import com.example.ecommerce.product.entity.ProductStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -99,4 +100,10 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
      * Finds recommended products by status.
      */
     List<Product> findByRecommendedTrueAndStatusAndDeletedFalse(ProductStatus status);
+
+    /**
+     * Finds products with low stock.
+     */
+    @Query("SELECT p FROM Product p WHERE p.deleted = false AND (p.quantity <= p.lowStock OR p.stockStatus = com.example.ecommerce.product.entity.StockStatus.LOW_STOCK)")
+    List<Product> findLowStockProducts();
 }

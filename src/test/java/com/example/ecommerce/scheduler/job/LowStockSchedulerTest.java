@@ -40,10 +40,10 @@ class LowStockSchedulerTest {
 
     @Test
     void testRunLowStockCheckSuccess() {
-        when(productRepository.findAll()).thenReturn(Collections.singletonList(sampleProduct));
+        when(productRepository.findLowStockProducts()).thenReturn(Collections.singletonList(sampleProduct));
 
         lowStockScheduler.runLowStockCheck();
 
-        verify(productRepository, times(1)).findAll();
+        verify(productRepository, times(1)).findLowStockProducts();
     }
 }
