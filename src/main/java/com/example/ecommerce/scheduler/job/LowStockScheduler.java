@@ -23,20 +23,16 @@ public class LowStockScheduler {
     @Scheduled(cron = "0 0 */2 * * ?") // Every 2 hours
     public void runLowStockCheck() {
         log.info("[CRON JOB] Starting low stock inventory monitoring check...");
-        List<Product> products = productRepository.findAll();
+        List<Product> products = productRepository.findLowStockProducts();
 
         int lowStockCount = 0;
         for (Product product : products) {
-            if (!product.isDeleted()) {
-                int qty = product.getQuantity() != null ? product.getQuantity() : 0;
-                int threshold = product.getLowStock() != null ? product.getLowStock() : 5;
+            int qty = product.getQuantity() != null ? product.getQuantity() : 0;
+            int threshold = product.getLowStock() != null ? product.getLowStock() : 5;
 
-                if (qty <= threshold || product.getStockStatus() == StockStatus.LOW_STOCK) {
-                    lowStockCount++;
-                    log.warn("[LOW STOCK ALERT] Product ID: {} ({}) SKU: {} has low stock balance! Current Qty: {}, Threshold: {}",
-                            product.getId(), product.getName(), product.getSku(), qty, threshold);
-                }
-            }
+            lowStockCount++;
+            log.warn("[LOW STOCK ALERT] Product ID: {} ({}) SKU: {} has low stock balance! Current Qty: {}, Threshold: {}",
+                    product.getId(), product.getName(), product.getSku(), qty, threshold);
         }
 
         log.info("[CRON JOB] Low stock check completed. Total low stock products flagged: {}", lowStockCount);
