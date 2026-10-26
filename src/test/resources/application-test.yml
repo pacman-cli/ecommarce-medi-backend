@@ -20,3 +20,5 @@ spring:
 app:
   mail:
     enabled: false
+  cors:
+    allowed-origins: http://localhost
