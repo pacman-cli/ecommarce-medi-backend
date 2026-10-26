@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 @Import(AuditingConfig.class)
 @ActiveProfiles("test")
-@Import(AuditingConfig.class)
 class ProductRepositoryTest {
 
     @Autowired

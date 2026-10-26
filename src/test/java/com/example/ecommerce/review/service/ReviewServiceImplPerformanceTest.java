@@ -19,7 +19,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +26,6 @@ import java.util.List;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@Slf4j
 class ReviewServiceImplPerformanceTest {
 
     @Mock
@@ -95,6 +93,6 @@ class ReviewServiceImplPerformanceTest {
         long endTime = System.nanoTime();
 
         double avgTimeMs = (endTime - startTime) / 1_000_000.0 / iterations;
-        log.info("Average execution time for checkVerifiedPurchase (10000 orders): {} ms", avgTimeMs);
+        System.out.println("Average execution time for checkVerifiedPurchase (10000 orders): " + avgTimeMs + " ms");
     }
 }
