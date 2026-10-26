@@ -16,7 +16,7 @@ public class JwtProperties {
      * HMAC secret used to sign tokens. Must be at least 256 bits (32 bytes).
      * Always override in production via the {@code JWT_SECRET} environment variable.
      */
-    private String secret = "change-me-please-change-me-please-secure-jwt-secret-0123456789";
+    private String secret;
 
     /** Access token lifetime in milliseconds. Default: 15 minutes. */
     private long accessTokenExpirationMs = 900_000L;
