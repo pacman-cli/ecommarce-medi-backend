@@ -20,5 +20,5 @@ spring:
 app:
   mail:
     enabled: false
-  jwt:
-    secret: super-secret-jwt-signing-key-for-test-environments
+  cors:
+    allowed-origins: http://localhost

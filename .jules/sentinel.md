@@ -3,12 +3,8 @@
 **Learning:** `java.util.Random` is a predictably seeded pseudo-random number generator. In contexts where identifiers must be unguessable (like transaction IDs or order IDs that might be exposed via URLs), using a predictable PRNG can lead to Insecure Direct Object References (IDOR) and information disclosure, allowing attackers to iterate through or predict identifiers.
 **Prevention:** Always use a cryptographically strong pseudo-random number generator (CSPRNG) like `java.security.SecureRandom` when generating sensitive, unique, or unpredictable identifiers and tokens.
 *   If running tests causes unrelated errors around `CacheManager`, it may be that `spring.cache.type=redis` is conditionally enabled but misconfigured in the application profile for tests, resulting in missing cache beans.
-# Security Sentinel Logs
 
-## Date: 2026-10-25
-**Vulnerability Type:** Hardcoded Secrets (CWE-798)
-**Component:** JWT Authentication Configuration
-**Severity:** Critical
-**Description:** A hardcoded, easily guessable HMAC secret was used for JWT signing in the `JwtProperties` class and as a default value in `application.yml` and `docker-compose.yml`.
-**Risk:** If an attacker discovers or guesses this secret (which was exposed in source control), they can forge valid JWTs, completely bypassing authentication and impersonating any user, including administrators.
-**Remediation:** Removed the hardcoded secret from Java code (`JwtProperties`), Spring configuration defaults (`application.yml`), and Docker configuration (`docker-compose.yml`). Enforced secret configuration via the `JWT_SECRET` environment variable for production environments. A dedicated mock secret was provided in `application-test.yml` strictly for testing purposes.
+## 2026-10-25 - [CRITICAL] Component Vulnerabilities in Base Images and Frameworks
+**Vulnerability:** A CI build failed due to the Trivy image scan detecting numerous critical and high severity vulnerabilities across multiple dependencies (Tomcat, Spring Framework, Spring Security, Thymeleaf).
+**Learning:** Container images and dependency trees frequently accumulate severe security vulnerabilities over time (CVE-2024-50379 RCE in Tomcat, CVE-2026-47884 RCE in Spring WebMVC, CVE-2026-40477 SSTI in Thymeleaf). It is critical to continuously monitor and upgrade foundational frameworks (like Spring Boot Starter Parent) which transitively upgrade these core dependencies to patched versions.
+**Prevention:** Regularly upgrade base dependency management BOMs (e.g. `spring-boot-starter-parent`) to newer, actively supported minor and patch releases. Bumping `spring-boot-starter-parent` from `3.3.5` to `3.4.5` resolved the reported CVEs in the Trivy scan. Also, note that Spring Boot version bumps can require corresponding updates in third-party integration libraries (like updating `springdoc-openapi-starter-webmvc-ui` from `2.6.0` to `2.8.5` due to Spring Framework internal API changes breaking the Swagger UI endpoint).

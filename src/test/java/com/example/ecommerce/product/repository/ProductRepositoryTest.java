@@ -8,7 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.context.annotation.Import;
+import com.example.ecommerce.config.AuditingConfig;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -16,7 +19,9 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@Import(com.example.ecommerce.config.AuditingConfig.class)
 @ActiveProfiles("test")
+@Import(AuditingConfig.class)
 class ProductRepositoryTest {
 
     @Autowired
